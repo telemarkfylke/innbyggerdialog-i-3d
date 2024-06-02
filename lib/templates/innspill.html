@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Innspill</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    height: 100%;
+    margin: 20px;
+  }
+  label {
+    font-weight: bold;
+    font-size: 14px;
+    display: block;
+    margin-top: 10px;
+  }
+  input {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  .form {
+    margin: 0 auto;
+    width: 80%;
+    height: 100%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  .container {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+  .block1 {
+    display: inline-flex;
+    flex-direction: row;
+  }
+  .block2 {
+    display: inline-flex;
+    flex-direction: row;
+  }
+</style>
+</head>
+<body>
+    <div class="form">
+        <img src="{{logo}}" alt="county icon" width="180" height="100">
+        <h3>{{project.projectName}}</h3>
+        <h4>{{project.type}}</h4>
+        <label for="dato">Innsendt:</label>
+        {{dato}}
+        
+        <label for="saksnummer">Saksnummer i p360:</label>
+        {{project.archiveCase}}
+        <br>
+        <label for="navn">Navn:</label>
+        {{layerAttributes.attributes.Name}}
+        
+        <label for="epost">E-post:</label>
+        {{layerAttributes.attributes.Email}}
+        
+        <label for="adresse">Adresse:</label>
+        {{layerAttributes.attributes.Address}}
+        
+        <label for="telefon">Telefonnummer:</label>
+        {{layerAttributes.attributes.Phone}}
+
+        <label for="påvegneav">Jeg gir innspill som:</label>
+        {{layerAttributes.attributes.Category2}}
+
+        {{#isOrg}}
+          <label for="org">Informasjon om organisasjon/myndighet:</label>
+          {{layerAttributes.attributes.Category2}}
+        {{/isOrg}}
+
+        <label for="img">Illustrasjon fra innbygerdialogen:</label>
+        <img src="{{layerAttributes.attributes.Thumbnail}}" alt="Bilde innspill">
+        
+        <label for="link">Lenke til innspillene:</label>
+        <a href="{{project.inputUrl}}">Trykk her for å komme til innspillene</a>
+
+        <label for="innspill">Innspill:</label>
+        {{layerAttributes.attributes.Comment}}
+
+        <label for="vedlegg">Vedlegg:</label>
+        {{#layerAttachmentInfos}}
+        - {{name}} <br>
+        {{/layerAttachmentInfos}}
+        {{^layerAttachmentInfos}}
+        Ingen vedlegg.
+        {{/layerAttachmentInfos}}
+    </div>
+</body>
+</html>

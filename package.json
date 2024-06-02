@@ -1,0 +1,26 @@
+{
+  "name": "3d-innbygger-dialog",
+  "version": "1.0.0",
+  "description": "Henter informasjon om innspill sendt inn via 3d-innbyggerdialog, arkiverer denne og varsler innsender.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Robin Ellingsen",
+  "license": "MIT",
+  "dependencies": {
+    "@azure/msal-node": "^2.7.0",
+    "@esri/arcgis-rest-feature-service": "^4.0.5",
+    "@esri/arcgis-rest-request": "^4.2.1",
+    "@vtfk/logger": "^6.1.0",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "html-pdf": "^3.0.1",
+    "mime": "^3.0.0",
+    "mustache": "^4.2.0",
+    "node-cache": "^5.1.2"
+  }
+}
