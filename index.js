@@ -12,11 +12,12 @@
   const createStats = require('./lib/createStats')
   const { callArchive } = require('./lib/call-archive')
 
-  const logPrefix = 'testing'
+  let logPrefix = 'Start'
 
   logger('info', [logPrefix, 'Starting script to get all the innspill and attachments from innbyggerdialog to archive'])
 
   // Opprett mappe struktur for prosjektene. Dette må kjøres før vi kjører en require på jobbene.
+  logPrefix = 'Mappestruktur'
   try {
     if (!fs.existsSync('./inputJobs')) {
       logger('info', [logPrefix, 'Creating folder strutcture, inputJobs'])
@@ -48,6 +49,7 @@
       }
       // Henter alle innspill som er sendt inn på vegne av en privatperson
       let res
+      logPrefix = 'Innspill'
       try {
         logger('info', [logPrefix, `Get all the innspill from the: ${p.projectName} project`])
         res = await queryFeatures(p.layer, 'innspill')
@@ -155,6 +157,7 @@
       const projectName = p.projectName.replace(/[^\w\s]/gi, '_')
       const projectPath = (`./attachments/${projectName}`)
       const innspillFilePath = fs.readdirSync(projectPath)
+      logPrefix = 'Arkivjobb'
 
       logger('info', [logPrefix, `Creating archive jobs for project: ${projectName}`])
       archiveJobs[projectName] = {
@@ -191,6 +194,7 @@
       // Hent alle arkivjobbene som er klare for arkivering og arkiver disse.
       const jobsToArchive = fs.readdirSync('./archiveJobs')
       const jobs = []
+      logPrefix = 'Arkivering'
 
       jobsToArchive.forEach(archiveJob => {
         logger('info', [logPrefix, `Getting ready to archive document(s) from ${archiveJob}`])
@@ -316,6 +320,7 @@
         }
         // Skriver tilbake per inputjob (til innbyggerdialog) at det er behandlet og sletter innspillet (lokalt).
         if (fileContent.layerAttributes.attributes.status === 'readyForPurge') {
+          logPrefix = 'Clean up'
           try {
             logger('info', [logPrefix, `Trying to update innspill, ${job} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
             const updateStatus = await update(fileContent.project.layer, fileContent.layerAttributes.attributes.OBJECTID, 'finished')
@@ -333,9 +338,11 @@
       // END Send Email & Create Stats & Clean Up
     } else {
       // Do nothing, project is not enabled.
+      logPrefix = 'Project'
       logger('info', [logPrefix, 'Current project not enabled'])
 
       // Om prosjektet ikke er aktivert, slett alle filer som hører til prosjektet om det finnes noen.
+      logPrefix = 'Clean up'
       const name = p.projectName.replace(/[^\w\s]/gi, '_')
       const folderName = `./attachments/${name}`
       try {
