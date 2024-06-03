@@ -2,6 +2,7 @@
   const { projects } = require('./lib/projects')
   const fs = require('node:fs')
   const update = require('./lib/jobs/updateFeatures')
+  const { fylke } = require('./config')
   const { logger } = require('@vtfk/logger')
   const queryFeatures = require('./lib/jobs/queryFeatures')
   const getAttachmentsInfo = require('./lib/jobs/getAttachmentsInfo')
@@ -12,7 +13,7 @@
   const createStats = require('./lib/createStats')
   const { callArchive } = require('./lib/call-archive')
 
-  let logPrefix = 'Start'
+  let logPrefix = `Start - Innbyggerdialog til arkiv - ${fylke.fylke}`
 
   logger('info', [logPrefix, 'Starting script to get all the innspill and attachments from innbyggerdialog to archive'])
 
