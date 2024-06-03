@@ -55,6 +55,7 @@
         res = await queryFeatures(p.layer, 'innspill')
         if (res.length === 0) {
           logger('info', [logPrefix, `No innspill found for: ${p.projectName} project`])
+          return 
         }
       } catch (error) {
         logger('warn', ['generateInputs', `Failed getting the innspill from the: ${p.projectName} project`, error])
