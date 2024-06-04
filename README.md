@@ -19,11 +19,17 @@ Scriptet leser en fil med predefinere [prosjekter](#projectsjs), prosjektene som
 - Kjør ``npm i``
 - Opprett en [.env](#env) fil
 - Opprett en [projects.js](#projectsjs) fil
-- Og kjør ``node index.js``
+- Kjør ``node index.js``
 - Scriptet oppretter de mappene det trenger og begynner å hente innspill, arkivere og varsle.
 
 ## Setup
 Prosjektet er tenkt å kjøre lokalt som en scheduled task på en server. Ønsket er at det det skal varsles innen 10min etter at et innspill er mottatt, tasken bør derfor ikke trigges med mer enn 10minutters mellomrom.
+
+### App registration
+Det må settes opp enn app registration i entraID (Azure) for å hente en token som kan brukes når løsninge skal kommunisere med arkiv apiet.
+- API permisions
+  - Archive (Application)
+
 ### projects.js
 I dag må prosjektene legges inn manuelt av noen med kjennskap til scriptet. På sikt kan det vurderes å koble det mot en sharepoint liste som kan administreres av systemansvarlig for innbyggerdialog. Dette vil gjøre det mulig for systemansvarlig å skru av og på prosjekter som leses av scriptet samt administrere prosjektene selv.
 ```javascript
