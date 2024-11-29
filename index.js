@@ -38,7 +38,7 @@
 
   projects.forEach(async p => {
     const name = p.projectName.replace(/[^\w\s]/gi, '_')
-    const isProjectFound = true
+    let isProjectFound = true
     if (p.enabled === true) {
       const folderName = `./attachments/${name}`
       try {
