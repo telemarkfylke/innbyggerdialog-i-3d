@@ -35,7 +35,8 @@ I dag må prosjektene legges inn manuelt av noen med kjennskap til scriptet. På
 ```javascript
 const projects = [
   {
-    layer: 'https://services5.arcgis.com/{UNIQUE_ID}/ArcGIS/rest/services/{UNIQUE_ID}/FeatureServer/0', // Lenke til prosjektet
+    layer: 'https://services5.arcgis.com/{UNIQUE_ID}/ArcGIS/rest/services/{UNIQUE_ID}/FeatureServer/0', // Lenke til prosjektet (visning)
+    updateLayer: 'https://services5.arcgis.com/{UNIQUE_ID}/ArcGIS/rest/services/{UNIQUE_ID}/FeatureServer/0', // Lenke til prosjektet (oppdatere)
     inputUrl: 'https://www.arcgis.com/apps/mapviewer/index.html?url=https://services-eu1.arcgis.com/{UNIQUE_ID}/ArcGIS/rest/services/{PROJECT}/FeatureServer/2&source=sd', // En lenke til et kart som viser alle innspillene.
     projectName: 'PROJECT NAME', // Bør være noe som ligner på det i arkivet
     projectOwner: 'PROJECT OWNER UPN', // Saksbehandler i arkivet

@@ -33,7 +33,8 @@
       fs.mkdirSync('./archiveJobs', { recursive: true })
     }
   } catch (error) {
-    logger('warn', [logPrefix, 'Failed to create the folder strutcture'], error)
+    logger('error', [logPrefix, 'Failed to create the folder strutcture'], error)
+    process.exit(1)
   }
 
   projects.forEach(async p => {
@@ -47,7 +48,8 @@
           fs.mkdirSync(folderName, { recursive: true })
         }
       } catch (error) {
-        logger('warn', [logPrefix, `Failed to create the folder strutcture, ${folderName}`], error)
+        logger('error', [logPrefix, `Failed to create the folder strutcture, ${folderName}`], error)
+        process.exit(1)
       }
       // Henter alle innspill som er sendt inn på vegne av en privatperson
       let res
@@ -60,7 +62,8 @@
           isProjectFound = false
         }
       } catch (error) {
-        logger('warn', ['generateInputs', `Failed getting the innspill from the: ${p.projectName} project`, error])
+        logger('error', ['generateInputs', `Failed getting the innspill from the: ${p.projectName} project`, error])
+        process.exit(1)
       }
       // For hvert innspill, lag en input fil som kan brukes til å generere en PDF og sende til arkivet.
       // Generate Inputs if project is found
@@ -83,7 +86,8 @@
             logger('info', [logPrefix, `Getting the attachments info from the: ${p.projectName} project`])
             attachmentInfo = await getAttachmentsInfo(p.layer, priv.attributes.OBJECTID)
           } catch (error) {
-            logger('warn', [logPrefix, `Failed getting the attachments info from the: ${p.projectName} project`], error)
+            logger('error', [logPrefix, `Failed getting the attachments info from the: ${p.projectName} project`], error)
+            process.exit(1)
           }
           inputObj.layerAttachmentInfos = attachmentInfo
 
@@ -99,7 +103,8 @@
               fs.mkdirSync(folderProjectName)
             }
           } catch (error) {
-            logger('warn', [logPrefix, `Failed to create the folder structure for the: ${p.projectName} project`])
+            logger('error', [logPrefix, `Failed to create the folder structure for the: ${p.projectName} project`])
+            process.exit(1)
           }
 
           // Hent alle attachments som hører til et innspill, det kan være ingen eller mange.
@@ -114,7 +119,8 @@
                 logger('info', [logPrefix, `Downloading all the attachments that belongs to: ${p.projectName} project with ID: ${priv.attributes.OBJECTID}`])
                 attachment = await donwloadAttachment(p.layer, priv.attributes.OBJECTID, a.id)
               } catch (error) {
-                logger('warn', [logPrefix, `Failed to download all the attachments that belongs to: ${p.projectName} project with ID: ${priv.attributes.OBJECTID}`])
+                logger('error', [logPrefix, `Failed to download all the attachments that belongs to: ${p.projectName} project with ID: ${priv.attributes.OBJECTID}`])
+                process.exit(1)
               }
               // Hent filtype
               contentType = attachment.headers['content-type']
@@ -134,22 +140,25 @@
             logger('info', [logPrefix, 'Saving the input jobs'])
             fs.writeFileSync(fileLocation, JSON.stringify(inputObj), null, 2)
           } catch (error) {
-            logger('warn', [logPrefix, 'Failed to save the input jobs'], error)
+            logger('error', [logPrefix, 'Failed to save the input jobs'], error)
+            process.exit(1)
           }
 
           // Generer PDF og lagre den i attachments under samme strunktur som vedlegg.
           try {
             await createPdf(fileLocation, folderProjectName)
           } catch (error) {
-            logger('warn', [logPrefix, 'Failed to create the pdf'], error)
+            logger('error', [logPrefix, 'Failed to create the pdf'], error)
+            process.exit(1)
           }
 
           try {
             logger('info', [logPrefix, 'Trying to update the innspill on the server'])
-            await update(p.layer, priv.attributes.OBJECTID, 'readyForArchive')
+            await update(p.updateLayer, priv.attributes.OBJECTID, 'readyForArchive')
             logger('info', [logPrefix, 'The innspill is updated on the server'])
           } catch (error) {
-            logger('warn', [logPrefix, 'Failed to update the innspill on the server', error])
+            logger('error', [logPrefix, 'Failed to update the innspill on the server', error])
+            process.exit(1)
           }
         }
         // END Generate Inputs
@@ -269,7 +278,8 @@
               logger('info', [logPrefix, `Trying to archive current document: ${payload.parameter.title}`])
               data = await callArchive('archive', payload)
             } catch (error) {
-              logger('warn', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
+              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
+              process.exit(1)
             }
 
             if (data?.status === 200) {
@@ -288,7 +298,7 @@
                 logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
               })
             } else {
-              logger('warn', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, data.data])
+              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, data.data])
             }
           }
           // Oppdater arkivjobben med de dokumentene som ikke ble arkivert.
@@ -305,6 +315,7 @@
               logger('info', [logPrefix, `Deleted: ${projectName}, all files have been archived.`])
             } catch (error) {
               logger('info', [logPrefix, `Failed to delete: ${projectName}`])
+              process.exit(1)
             }
           }
         }
@@ -332,7 +343,7 @@
             logPrefix = 'Clean up'
             try {
               logger('info', [logPrefix, `Trying to update innspill, ${job} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
-              const updateStatus = await update(fileContent.project.layer, fileContent.layerAttributes.attributes.OBJECTID, 'finished')
+              const updateStatus = await update(fileContent.project.updateLayer, fileContent.layerAttributes.attributes.OBJECTID, 'finished')
               if (updateStatus.updateResults[0].success) {
                 logger('info', [logPrefix, `Innspill updated: ${job} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
                 fs.rm(`./inputJobs/${job}`, () => {
@@ -340,7 +351,8 @@
                 })
               }
             } catch (error) {
-              logger('warn', [logPrefix, `Failed to delete the innspill or to post the change to innbyggerdialog, ${job} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`], error)
+              logger('error', [logPrefix, `Failed to delete the innspill or to post the change to innbyggerdialog, ${job} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`], error)
+              process.exit(1)
             }
           }
         }
@@ -362,7 +374,8 @@
           })
         }
       } catch (error) {
-        logger('warn', [logPrefix, `Failed to delete: ${folderName}`, error])
+        logger('error', [logPrefix, `Failed to delete: ${folderName}`, error])
+        process.exit(1)
       }
     }
   })
