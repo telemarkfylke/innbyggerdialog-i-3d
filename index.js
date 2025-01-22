@@ -298,7 +298,7 @@
                 logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
               })
             } else {
-              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, data.data])
+              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`])
             }
           }
           // Oppdater arkivjobben med de dokumentene som ikke ble arkivert.
