@@ -277,12 +277,6 @@
             try {
               logger('info', [logPrefix, `Trying to archive current document: ${payload.parameter.title}`])
               data = await callArchive('archive', payload)
-            } catch (error) {
-              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
-              process.exit(1)
-            }
-
-            if (data?.status === 200) {
               // Om status på arkiveringen er 200 Ok, returner "DocumentNumber" og skriv dette til inputObjektet og endre statusen til readyForEmail. Slett også arkivjobben som ble postet
               logger('info', [logPrefix, `Document with title: ${payload.parameter.title} successfully archived. DocumentNumber: ${data.data.DocumentNumber}`])
               const fileContent = JSON.parse(fs.readFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, 'utf8'))
@@ -297,9 +291,29 @@
               fs.rm(`./attachments/${Object.keys(job)}/${fileContent.layerAttributes.attributes.OBJECTID}`, { recursive: true }, () => {
                 logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
               })
-            } else {
-              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`])
+            } catch (error) {
+              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
+              process.exit(1)
             }
+
+            // if (data?.status === 200) {
+            //   // // Om status på arkiveringen er 200 Ok, returner "DocumentNumber" og skriv dette til inputObjektet og endre statusen til readyForEmail. Slett også arkivjobben som ble postet
+            //   // logger('info', [logPrefix, `Document with title: ${payload.parameter.title} successfully archived. DocumentNumber: ${data.data.DocumentNumber}`])
+            //   // const fileContent = JSON.parse(fs.readFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, 'utf8'))
+            //   // fileContent.project.documentNumber = data.data.DocumentNumber
+            //   // fileContent.layerAttributes.attributes.status = 'readyForEmail'
+
+            //   // // Skriv endringene til input filene.
+            //   // logger('info', [logPrefix, `Updating current file: ${Object.keys(job)}_${OBJECTID}.json`])
+            //   // fs.writeFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, JSON.stringify(fileContent))
+
+            //   // // Slett vedlegg og pdf
+            //   // fs.rm(`./attachments/${Object.keys(job)}/${fileContent.layerAttributes.attributes.OBJECTID}`, { recursive: true }, () => {
+            //   //   logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
+            //   // })
+            // } else {
+            //   logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`])
+            // }
           }
           // Oppdater arkivjobben med de dokumentene som ikke ble arkivert.
           logger('info', [logPrefix, `Removing jobs that have been archived. Jobs left to be archived: ${newArchiveJobs.length}`])
