@@ -232,7 +232,7 @@
               parameter: {
                 title: '',
                 Category: 'Dokument inn',
-                Status: 'J',
+                Status: 'M',
                 CaseNumber: job[Object.keys(job)].archiveCase,
                 ResponsiblePersonEmail: job[Object.keys(job)].projectOwner,
                 Files: []
