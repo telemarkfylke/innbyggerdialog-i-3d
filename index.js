@@ -208,7 +208,7 @@
         }
         // Slett vedlegg og pdf
         fs.rm(`./attachments/${innspill}`, { recursive: true }, () => {
-          logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
+          logger('info', [logPrefix, `Attachments was deleted from job: ${projectName} with ID: ${innspill}`])
         })
       } //)
       // END Generate Archive Jobs
