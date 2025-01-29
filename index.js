@@ -207,9 +207,16 @@
           process.exit(1) 
         }
         // Slett vedlegg og pdf
-        fs.rm(`./attachments/${innspill}`, { recursive: true }, () => {
-          logger('info', [logPrefix, `Attachments was deleted from job: ${projectName} with ID: ${innspill}`])
-        })
+        for (const file of files) {
+          try {
+            fs.rmSync(`${projectPath}/${innspill}/${file}`)
+            fs.rmdirSync(`${projectPath}/${innspill}`)
+            logger('info', [logPrefix, `Attachment: ${file} was deleted from job: ${projectName} with ID: ${innspill}`])
+          } catch (error) {
+            logger('error', [logPrefix, `Failed to delete ${file}`, error])
+            process.exit(1)
+          }
+        }
       } //)
       // END Generate Archive Jobs
       
