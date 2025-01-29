@@ -113,7 +113,8 @@
           let filename
           if (attachmentInfo.length > 0) {
             // Last ned alle attachments, hent filtype og lagre filen.
-            attachmentInfo.forEach(async a => {
+            for (const a of attachmentInfo) {
+            // attachmentInfo.forEach(async a => {
               let attachment
               try {
                 logger('info', [logPrefix, `Downloading all the attachments that belongs to: ${p.projectName} project with ID: ${priv.attributes.OBJECTID}`])
@@ -130,7 +131,7 @@
               // Lagre fil
               logger('info', [logPrefix, `Saving all the attachments that belongs to: ${p.projectName} project with ID: ${priv.attributes.OBJECTID}`])
               fs.writeFileSync(`${folderProjectName}/${filename}.${extension}`, attachment.data)
-            })
+            } //)
           }
           // Angi status
           inputObj.layerAttributes.attributes.status = 'readyForArchive'
@@ -180,8 +181,8 @@
           archiveCase: p.archiveCase,
           documents: []
         }
-
-        innspillFilePath.forEach(innspill => {
+        for (const innspill of innspillFilePath) {
+        // innspillFilePath.forEach(innspill => {
           const files = fs.readdirSync(`${projectPath}/${innspill}`)
           const attachements = []
           files.forEach(file => {
@@ -196,7 +197,7 @@
             })
           })
           documents.push(attachements)
-        })
+        } //)
 
         archiveJobs[projectName].documents = documents
         logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}`])
@@ -210,11 +211,12 @@
       const jobs = []
       logPrefix = 'Arkivering'
 
-      jobsToArchive.forEach(archiveJob => {
+      for (const archiveJob of jobsToArchive) {
+      // jobsToArchive.forEach(archiveJob => {
         logger('info', [logPrefix, `Getting ready to archive document(s) from ${archiveJob}`])
         const job = fs.readFileSync(`./archiveJobs/${archiveJob}`, 'utf8')
         jobs.push(JSON.parse(job))
-      })
+      } //)
 
       if (jobs.length === 0) {
         logger('info', [logPrefix, 'No new innspill to archive'])
