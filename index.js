@@ -163,48 +163,48 @@
           }
         }
         // END Generate Inputs
-
-        // Generate Archive Jobs
-        // Hent alle input filene som er klare for arkivering om du finner et prosjekt.
-        const archiveJobs = {}
-        const documents = []
-        const projectName = p.projectName.replace(/[^\w\s]/gi, '_')
-        const projectPath = (`./attachments/${projectName}`)
-        const innspillFilePath = fs.readdirSync(projectPath)
-        logPrefix = 'Arkivjobb'
-
-        logger('info', [logPrefix, `Creating archive jobs for project: ${projectName}`])
-        archiveJobs[projectName] = {
-          projectName: p.projectName,
-          projectOwner: p.projectOwner,
-          type: p.type,
-          archiveCase: p.archiveCase,
-          documents: []
-        }
-        for (const innspill of innspillFilePath) {
-        // innspillFilePath.forEach(innspill => {
-          const files = fs.readdirSync(`${projectPath}/${innspill}`)
-          const attachements = []
-          files.forEach(file => {
-            let extension = JSON.stringify(file)
-            extension = extension.split('.')[1].split('"')[0]
-            const base64 = fs.readFileSync(`${projectPath}/${innspill}/${file}`, 'base64')
-            attachements.push({
-              title: file,
-              format: extension,
-              OBJECTID: innspill,
-              Base64Data: base64
-            })
-          })
-          documents.push(attachements)
-        } //)
-
-        archiveJobs[projectName].documents = documents
-        logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}`])
-        fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(archiveJobs))
-        // END Generate Archive Jobs
       }
 
+      // Generate Archive Jobs if any files are found in inputJobs folder with status readyForArchive
+      // Hent alle input filene som er klare for arkivering om du finner et prosjekt.
+      const archiveJobs = {}
+      const documents = []
+      const projectName = p.projectName.replace(/[^\w\s]/gi, '_')
+      const projectPath = (`./attachments/${projectName}`)
+      const innspillFilePath = fs.readdirSync(projectPath)
+      logPrefix = 'Arkivjobb'
+
+      logger('info', [logPrefix, `Creating archive jobs for project: ${projectName}`])
+      archiveJobs[projectName] = {
+        projectName: p.projectName,
+        projectOwner: p.projectOwner,
+        type: p.type,
+        archiveCase: p.archiveCase,
+        documents: []
+      }
+      for (const innspill of innspillFilePath) {
+      // innspillFilePath.forEach(innspill => {
+        const files = fs.readdirSync(`${projectPath}/${innspill}`)
+        const attachements = []
+        files.forEach(file => {
+          let extension = JSON.stringify(file)
+          extension = extension.split('.')[1].split('"')[0]
+          const base64 = fs.readFileSync(`${projectPath}/${innspill}/${file}`, 'base64')
+          attachements.push({
+            title: file,
+            format: extension,
+            OBJECTID: innspill,
+            Base64Data: base64
+          })
+        })
+        documents.push(attachements)
+      } //)
+
+      archiveJobs[projectName].documents = documents
+      logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}`])
+      fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(archiveJobs))
+      // END Generate Archive Jobs
+      
       // Archive
       // Hent alle arkivjobbene som er klare for arkivering og arkiver disse.
       const jobsToArchive = fs.readdirSync('./archiveJobs')
