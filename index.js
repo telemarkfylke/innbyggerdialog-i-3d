@@ -167,14 +167,14 @@
 
       // Generate Archive Jobs if any files are found in inputJobs folder with status readyForArchive
       // Hent alle input filene som er klare for arkivering om du finner et prosjekt.
-      const archiveJobs = {}
-      const documents = []
       const projectName = p.projectName.replace(/[^\w\s]/gi, '_')
       const projectPath = (`./attachments/${projectName}`)
       const innspillFilePath = fs.readdirSync(projectPath)
-      logPrefix = 'Arkivjobb'
-
       for (const innspill of innspillFilePath) {
+        const archiveJobs = {}
+        const documents = []
+        logPrefix = 'Arkivjobb'
+
         logger('info', [logPrefix, `Creating archive jobs for project: ${projectName}, innspill: ${innspill}`])
         archiveJobs[projectName] = {
           projectName: p.projectName,
@@ -183,7 +183,7 @@
           archiveCase: p.archiveCase,
           documents: []
         }
-      // innspillFilePath.forEach(innspill => {
+        // innspillFilePath.forEach(innspill => {
         const files = fs.readdirSync(`${projectPath}/${innspill}`)
         const attachements = []
         files.forEach(file => {
@@ -199,7 +199,7 @@
         })
         documents.push(attachements)
         archiveJobs[projectName].documents = documents
-        logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}`])
+        logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}, innspill: ${innspill}`])
         fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(archiveJobs))
       } //)
       // END Generate Archive Jobs
