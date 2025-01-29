@@ -174,15 +174,15 @@
       const innspillFilePath = fs.readdirSync(projectPath)
       logPrefix = 'Arkivjobb'
 
-      logger('info', [logPrefix, `Creating archive jobs for project: ${projectName}`])
-      archiveJobs[projectName] = {
-        projectName: p.projectName,
-        projectOwner: p.projectOwner,
-        type: p.type,
-        archiveCase: p.archiveCase,
-        documents: []
-      }
       for (const innspill of innspillFilePath) {
+        logger('info', [logPrefix, `Creating archive jobs for project: ${projectName}, innspill: ${innspill}`])
+        archiveJobs[projectName] = {
+          projectName: p.projectName,
+          projectOwner: p.projectOwner,
+          type: p.type,
+          archiveCase: p.archiveCase,
+          documents: []
+        }
       // innspillFilePath.forEach(innspill => {
         const files = fs.readdirSync(`${projectPath}/${innspill}`)
         const attachements = []
@@ -198,11 +198,10 @@
           })
         })
         documents.push(attachements)
+        archiveJobs[projectName].documents = documents
+        logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}`])
+        fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(archiveJobs))
       } //)
-
-      archiveJobs[projectName].documents = documents
-      logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}`])
-      fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(archiveJobs))
       // END Generate Archive Jobs
       
       // Archive
