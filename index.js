@@ -200,7 +200,16 @@
         documents.push(attachements)
         archiveJobs[projectName].documents = documents
         logger('info', [logPrefix, `Finished creating archive jobs for project: ${projectName}, innspill: ${innspill}`])
-        fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(archiveJobs))
+        try {
+          fs.writeFileSync(`./archiveJobs/${projectName}-${innspill}.json`, JSON.stringify(archiveJobs))
+        } catch (error) {
+          logger('error', [logPrefix, `Failed to write archive job to file for project: ${projectName}, innspill: ${innspill}`], error)
+          process.exit(1) 
+        }
+        // Slett vedlegg og pdf
+        fs.rm(`./attachments/${innspill}`, { recursive: true }, () => {
+          logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
+        })
       } //)
       // END Generate Archive Jobs
       
@@ -288,10 +297,6 @@
               logger('info', [logPrefix, `Updating current file: ${Object.keys(job)}_${OBJECTID}.json`])
               fs.writeFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, JSON.stringify(fileContent))
 
-              // Slett vedlegg og pdf
-              fs.rm(`./attachments/${Object.keys(job)}/${fileContent.layerAttributes.attributes.OBJECTID}`, { recursive: true }, () => {
-                logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
-              })
             } catch (error) {
               logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
               process.exit(1)
