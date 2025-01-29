@@ -36,8 +36,8 @@
     logger('error', [logPrefix, 'Failed to create the folder strutcture'], error)
     process.exit(1)
   }
-
-  projects.forEach(async p => {
+  for (const p of projects) {
+  // projects.forEach(async p => {
     const name = p.projectName.replace(/[^\w\s]/gi, '_')
     let isProjectFound = true
     if (p.enabled === true) {
@@ -392,5 +392,5 @@
         process.exit(1)
       }
     }
-  })
+  } //)
 })()
