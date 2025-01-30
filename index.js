@@ -240,7 +240,6 @@
         // For hvert innspill, post til arkivet og oppdater input filen med "DocumentNumber" og endre status til readyForEmail.
         for (const job of jobs) {
           const newArchiveJobs = []
-
           for (const doc of job[Object.keys(job)].documents) {
             let OBJECTID
             const payload = {
@@ -294,6 +293,12 @@
             try {
               logger('info', [logPrefix, `Trying to archive current document: ${payload.parameter.title}`])
               data = await callArchive('archive', payload)
+            } catch (error) {
+              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
+              process.exit(1)
+            }
+
+            if (data?.status === 200) {
               // Om status på arkiveringen er 200 Ok, returner "DocumentNumber" og skriv dette til inputObjektet og endre statusen til readyForEmail. Slett også arkivjobben som ble postet
               logger('info', [logPrefix, `Document with title: ${payload.parameter.title} successfully archived. DocumentNumber: ${data.data.DocumentNumber}`])
               const fileContent = JSON.parse(fs.readFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, 'utf8'))
@@ -304,47 +309,39 @@
               logger('info', [logPrefix, `Updating current file: ${Object.keys(job)}_${OBJECTID}.json`])
               fs.writeFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, JSON.stringify(fileContent))
 
-            } catch (error) {
-              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`, error])
-              process.exit(1)
-            }
-
-            // if (data?.status === 200) {
-            //   // // Om status på arkiveringen er 200 Ok, returner "DocumentNumber" og skriv dette til inputObjektet og endre statusen til readyForEmail. Slett også arkivjobben som ble postet
-            //   // logger('info', [logPrefix, `Document with title: ${payload.parameter.title} successfully archived. DocumentNumber: ${data.data.DocumentNumber}`])
-            //   // const fileContent = JSON.parse(fs.readFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, 'utf8'))
-            //   // fileContent.project.documentNumber = data.data.DocumentNumber
-            //   // fileContent.layerAttributes.attributes.status = 'readyForEmail'
-
-            //   // // Skriv endringene til input filene.
-            //   // logger('info', [logPrefix, `Updating current file: ${Object.keys(job)}_${OBJECTID}.json`])
-            //   // fs.writeFileSync(`inputJobs/${Object.keys(job)}_${OBJECTID}.json`, JSON.stringify(fileContent))
-
-            //   // // Slett vedlegg og pdf
-            //   // fs.rm(`./attachments/${Object.keys(job)}/${fileContent.layerAttributes.attributes.OBJECTID}`, { recursive: true }, () => {
-            //   //   logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
-            //   // })
-            // } else {
-            //   logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`])
-            // }
-          }
-          // Oppdater arkivjobben med de dokumentene som ikke ble arkivert.
-          logger('info', [logPrefix, `Removing jobs that have been archived. Jobs left to be archived: ${newArchiveJobs.length}`])
-          job[Object.keys(job)].documents = newArchiveJobs
-
-          const projectName = job[Object.keys(job)].projectName.replace(/[^\w\s]/gi, '_')
-
-          if (newArchiveJobs.length > 0) {
-            fs.writeFileSync(`./archiveJobs/${projectName}.json`, JSON.stringify(job), { encoding: 'utf8', flag: 'w' })
-          } else {
-            try {
-              await fs.promises.rm(`./archiveJobs/${projectName}.json`)
-              logger('info', [logPrefix, `Deleted: ${projectName}, all files have been archived.`])
-            } catch (error) {
-              logger('info', [logPrefix, `Failed to delete: ${projectName}`])
-              process.exit(1)
+              // Slett vedlegg og pdf
+              fs.rm(`./attachments/${Object.keys(job)}/${fileContent.layerAttributes.attributes.OBJECTID}`, { recursive: true }, () => {
+                logger('info', [logPrefix, `Attachments was deleted from job: ${Object.keys(job)} with ID: ${fileContent.layerAttributes.attributes.OBJECTID}`])
+              })
+              // Slett arkivjobben
+              try {
+                await fs.promises.rm(`./archiveJobs/${Object.keys(job)}-${fileContent.layerAttributes.attributes.OBJECTID}.json`)
+                logger('info', [logPrefix, `Deleted: ${Object.keys(job)}-${fileContent.layerAttributes.attributes.OBJECTID}, all files have been archived.`])
+              } catch (error) {
+                logger('info', [logPrefix, `Failed to delete: ${Object.keys(job)}-${fileContent.layerAttributes.attributes.OBJECTID}`, error])
+                process.exit(1)
+              }
+            } else {
+              logger('error', [logPrefix, `Failed to archive current document: ${payload.parameter.title}`])
             }
           }
+          // // Oppdater arkivjobben med de dokumentene som ikke ble arkivert.
+          // logger('info', [logPrefix, `Removing jobs that have been archived. Jobs left to be archived: ${newArchiveJobs.length}`])
+          // job[Object.keys(job)].documents = newArchiveJobs
+
+          // const projectName = job[Object.keys(job)].projectName.replace(/[^\w\s]/gi, '_')
+
+          // if (newArchiveJobs.length > 0) {
+          //   fs.writeFileSync(`./archiveJobs/${projectName}-${priv.attributes.OBJECTID}.json`, JSON.stringify(job), { encoding: 'utf8', flag: 'w' })
+          // } else {
+          //   try {
+          //     await fs.promises.rm(`./archiveJobs/${projectName}-${priv.attributes.OBJECTID}.json`)
+          //     logger('info', [logPrefix, `Deleted: ${projectName}-${priv.attributes.OBJECTID}, all files have been archived.`])
+          //   } catch (error) {
+          //     logger('info', [logPrefix, `Failed to delete: ${projectName}-${priv.attributes.OBJECTID}`])
+          //     process.exit(1)
+          //   }
+          // }
         }
         // END Archive
       }
